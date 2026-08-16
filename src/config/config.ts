@@ -10,7 +10,7 @@ type CONFIG = {
     readonly KIE_MODEL: string;
 }
 
-const config: CONFIG = {
+const app_config: CONFIG = {
     GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || "",
     MISTRAL_API_KEY: process.env.MISTRAL_API_KEY || "",
     COHERE_API_KEY: process.env.COHERE_API_KEY || "",
@@ -18,4 +18,4 @@ const config: CONFIG = {
     KIE_MODEL: process.env.KIE_MODEL || "",
 }
 
-export default config;
+export default app_config;
