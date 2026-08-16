@@ -1,5 +1,6 @@
 import type { Message } from "@langchain/core/messages";
-import { StateSchema, MessagesValue, StateGraph, START, END } from "@langchain/langgraph";
+import { StateSchema, MessagesValue, ReducedValue, StateGraph, START, END } from "@langchain/langgraph";
+import type { GraphNode } from "@langchain/langgraph";
 
 
 
