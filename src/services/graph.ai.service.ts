@@ -1,22 +1,23 @@
 // import type { Message } from "@langchain/core/messages";
 import { HumanMessage } from "@langchain/core/messages";
-import { StateSchema, MessagesValue, ReducedValue, StateGraph, START, END } from "@langchain/langgraph";
-import type { GraphNode } from "@langchain/langgraph";
-import {mistralModel,cohereModel} from "./model.service.js"
-import {z} from "zod";
+import { StateSchema, MessagesValue, ReducedValue, type GraphNode, StateGraph, START, END } from "@langchain/langgraph";
+// import type { GraphNode } from "@langchain/langgraph";
+import { mistralModel, cohereModel, geminiModel } from "./model.service.js"
+import { createAgent, providerStrategy } from 'langchain';
+import { z } from "zod";
 
 
 
 
 const State = new StateSchema({
     messages: MessagesValue,
-    solution_1: new ReducedValue(z.string().default(""),{
-        reducer:(current,next)=>{
+    solution_1: new ReducedValue(z.string().default(""), {
+        reducer: (current, next) => {
             return next
         }
     }),
-    solution_2: new ReducedValue(z.string().default(""),{
-        reducer:(current,next)=>{
+    solution_2: new ReducedValue(z.string().default(""), {
+        reducer: (current, next) => {
             return next
         }
     }),
@@ -25,12 +26,12 @@ const State = new StateSchema({
         solution_2_score: 0,
 
     }),
-    {
-        reducer:(current,next)=>{
-            return next
+        {
+            reducer: (current, next) => {
+                return next
+            }
         }
-    }
-)
+    )
 
 });
 
@@ -68,7 +69,7 @@ const solutionNode: GraphNode<typeof State> = async (state: typeof State) => {
 
     console.log(state)
 
-    const [mistralResult, cohereResult] =await Promise.all([
+    const [mistralResult, cohereResult] = await Promise.all([
         mistralModel.invoke(state.messages[0].text),
         cohereModel.invoke(state.messages[0].text)
     ])
@@ -80,15 +81,47 @@ const solutionNode: GraphNode<typeof State> = async (state: typeof State) => {
 
 }
 
+const judgeNode: GraphNode<typeof State> = async (state: typeof State) => {
+
+    console.log("Invoking Judge ",state)
+    
+    const { solution_1, solution_2 } = state;
+
+    const judge = createAgent({
+        model: geminiModel,
+        tools: [],
+        responseFormat:providerStrategy(z.object({
+            solution_1_score: z.number().min(0).max(10),
+            solution_2_score: z.number().min(0).max(10),
+        }))
+    })
+
+    const judgeResponse=await judge.invoke({
+        messages: [
+            new HumanMessage(
+            `You are a judge for an AI battle. You will be given two solutions to the same problem. Your task is to evaluate both solutions and provide a score for each solution on a scale of 0 to 10, where 0 is the worst and 10 is the best. Please provide your scores in the following JSON format: {"solution_1_score": <score_for_solution_1>, "solution_2_score": <score_for_solution_2>}. Here are the solutions:\n\nSolution 1: ${solution_1}\n\nSolution 2: ${solution_2}`)
+        ]
+    });
+
+    const result = judgeResponse.structuredResponse
+
+    return{
+        judgeRecommendation: result
+    }
+
+}
+
 const graph = new StateGraph(State)
     .addNode("solution", solutionNode)
+    .addNode("judge", judgeNode)
     .addEdge(START, "solution")
-    .addEdge("solution", END)
+    .addEdge("solution", "judge")
+    .addEdge("judge", END)
     .compile();
 
 
 
-    export default async function (userMessage: string) {
+export default async function (userMessage: string) {
     const result = await graph.invoke({
         messages: [
             new HumanMessage(userMessage)
