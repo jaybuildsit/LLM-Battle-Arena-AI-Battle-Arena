@@ -39,6 +39,8 @@ const State = new StateSchema({
 
 
 
+
+
 // type JUDGEMENT = {
 //     winner: "solution1" | "solution2";
 //     solution_1_score: number;
@@ -83,31 +85,43 @@ const solutionNode: GraphNode<typeof State> = async (state: typeof State) => {
 
 const judgeNode: GraphNode<typeof State> = async (state: typeof State) => {
 
-    console.log("Invoking Judge ",state)
-    
+    console.log("Invoking Judge ", state)
+
     const { solution_1, solution_2 } = state;
 
     const judge = createAgent({
         model: geminiModel,
         tools: [],
-        responseFormat:providerStrategy(z.object({
+        responseFormat: providerStrategy(z.object({
             solution_1_score: z.number().min(0).max(10),
             solution_2_score: z.number().min(0).max(10),
         }))
     })
 
-    const judgeResponse=await judge.invoke({
+    const judgeResponse = await judge.invoke({
         messages: [
             new HumanMessage(
-            `You are a judge for an AI battle. You will be given two solutions to the same problem. Your task is to evaluate both solutions and provide a score for each solution on a scale of 0 to 10, where 0 is the worst and 10 is the best. Please provide your scores in the following JSON format: {"solution_1_score": <score_for_solution_1>, "solution_2_score": <score_for_solution_2>}. Here are the solutions:\n\nSolution 1: ${solution_1}\n\nSolution 2: ${solution_2}`)
+                `You are a judge for an AI battle.
+
+You will be given two solutions to the same problem.
+
+Score each solution from 0 to 10.
+
+Solution 1:
+${solution_1}
+
+Solution 2:
+${solution_2}`
+            )
         ]
     });
 
-    const result = judgeResponse.structuredResponse
+    console.log("JUDGE RESPONSE:", judgeResponse);
+    console.log("STRUCTURED RESPONSE:", judgeResponse.structuredResponse);
 
-    return{
-        judgeRecommendation: result
-    }
+    return {
+        judgeRecommendation: judgeResponse.structuredResponse
+    };
 
 }
 
