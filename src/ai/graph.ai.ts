@@ -2,7 +2,7 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { StateSchema, MessagesValue, ReducedValue, type GraphNode, StateGraph, START, END } from "@langchain/langgraph";
 // import type { GraphNode } from "@langchain/langgraph";
-import { mistralModel, cohereModel, geminiModel } from "./model.service.js"
+import { mistralModel, cohereModel, geminiModel } from "./model.ai.js"
 import { createAgent, providerStrategy } from 'langchain';
 import { z } from "zod";
 
