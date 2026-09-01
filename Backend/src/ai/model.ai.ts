@@ -18,7 +18,3 @@ export const cohereModel = new ChatCohere({
     apiKey: config.COHERE_API_KEY,
 })
 
-// export const claudeModel = new ({
-//     model: config.KIE_MODEL,
-//     apiKey: config.KIE_API_KEY,
-// });

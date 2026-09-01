@@ -27,12 +27,6 @@ const state = new StateSchema({
 
 
 
-// type AIBATTLESTATE = {
-//     messages: typeof MessagesValue;
-//     solution_1: string;
-//     solution_2: string;
-//     judgement: JUDGEMENT;
-// }
 
 // const state: AIBATTLESTATE = {
 //     messages: MessagesValue,
