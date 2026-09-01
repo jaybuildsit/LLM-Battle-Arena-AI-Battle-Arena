@@ -1,15 +1,16 @@
 import express from "express"
-import useGraph from "./services/graph.ai.service.js"
+import graph from "./ai/graph.ai.js"
 
 const app = express()
 
 
-app.get("/health", (req, res) => {
-    res.status(200).json({status: "ok"})
+app.get("/", async (req, res) => {
+    const result = await graph("Whats the best Ai model for text generation?")
+    res.json(result)
+    
 })
 
 app.post("/use-graph",async (req,res)=>{
-    await useGraph("Write a factorial function in JavaScript that takes a number as input and returns the factorial of that number.")
 
 })
 

@@ -1,6 +1,6 @@
 // import type { Message } from "@langchain/core/messages";
 import { HumanMessage } from "@langchain/core/messages";
-import { StateSchema, MessagesValue, ReducedValue, type GraphNode, StateGraph, START, END } from "@langchain/langgraph";
+import { StateSchema, MessagesValue, ReducedValue, type GraphNode, StateGraph, START, END , type CompiledStateGraph} from "@langchain/langgraph";
 // import type { GraphNode } from "@langchain/langgraph";
 import { mistralModel, cohereModel, geminiModel } from "./model.ai.js"
 import { createAgent, providerStrategy } from 'langchain';
