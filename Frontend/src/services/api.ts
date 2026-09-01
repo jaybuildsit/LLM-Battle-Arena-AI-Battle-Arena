@@ -50,10 +50,10 @@ export async function executeBattleApi(
     // Second attempt if POST failed or 404/405 (in case backend is GET /api)
     if (!response || !response.ok) {
       try {
-        const getUrl = apiUrl.includes('?') 
+        const getUrl = apiUrl.includes('?')
           ? `${apiUrl}&problem=${encodeURIComponent(problem)}`
           : `${apiUrl}?problem=${encodeURIComponent(problem)}&message=${encodeURIComponent(problem)}`;
-        
+
         response = await fetch(getUrl, {
           method: 'GET',
           headers: {
@@ -71,7 +71,7 @@ export async function executeBattleApi(
 
     if (response && response.ok) {
       const data = await response.json();
-      
+
       // Validate schema
       if (isValidBattleResponse(data)) {
         return {
